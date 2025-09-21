@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - Lost & Found Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Profile.css">
+    
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🔍</span>
+                <span class="logo-text">Lost & Found Portal</span>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link">Home</a>
+                <a href="#" class="nav-link active">Profile</a>
+                <a href="#" class="nav-link">My Posts</a>
+            </div>
+            <div class="nav-actions">
+                <a href="#" class="btn btn-primary" id="uploadBtn">📸 Upload Item</a>
+                <a href="#" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <h1 class="profile-title">My Profile</h1>
+                <p class="profile-subtitle">Manage your account information and settings</p>
+            </div>
+
+            <!-- Profile Content -->
+            <div class="profile-content">
+                <!-- Profile Sidebar -->
+                <div class="profile-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-avatar">
+                            👤
+                        </div>
+                        <h2 class="profile-name">John Smith</h2>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-item">
+                                <span class="stat-number">12</span>
+                                <span class="stat-label">Items Posted</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-number">8</span>
+                                <span class="stat-label">Items Found</span>
+                            </div>
+                        </div>
+                        
+                        <div class="profile-actions">
+                            <button class="btn btn-primary" id="editProfileBtn">✏️ Edit Profile</button>
+                            <button class="btn btn-secondary" id="changePasswordBtn">🔒 Change Password</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Details -->
+                <div class="profile-details">
+                    <!-- Personal Information -->
+                    <div class="details-section" id="personalInfo">
+                        <h3 class="section-title">
+                            <span class="detail-icon">👤</span>
+                            Personal Information
+                        </h3>
+                        <div>
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <span class="detail-icon">📝</span>
+                                    Full Name :
+                                </span>
+                                <span class="detail-value">John Smith</span>
+                            </div>
+                            </div> 
+                            <div class="profile-info">
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <span class="detail-icon">📧</span>
+                                    Email Address :
+                                </span>
+                                <span class="detail-value">john.smith@university.edu</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">
+                                    <span class="detail-icon">📱</span>
+                                    Phone Number :
+                                </span>
+                                <span class="detail-value">+1 (555) 123-4567</span>
+                            </div>
+                        </div>
+
+                        <!-- Edit Form (Hidden by default) -->
+                        <div class="edit-form" id="editForm">
+                            <form>
+                                <div class="form-group">
+                                    <label for="firstName">First Name</label>
+                                    <input type="text" id="firstName" value="John">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Last Name</label>
+                                    <input type="text" id="lastName" value="Smith">
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email Address</label>
+                                    <input type="email" id="email" value="john.smith@university.edu">
+                                </div>
+                                <div class="form-group">
+                                    <label for="phone">Phone Number</label>
+                                    <input type="tel" id="phone" value="+1 (555) 123-4567">
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Account Settings -->
+                    <div class="details-section">
+                        <h3 class="section-title">
+                            <span class="detail-icon">⚙️</span>
+                            Account Settings
+                        </h3>
+                        
+                        <div class="detail-item">
+                            <span class="detail-label">
+                                <span class="detail-icon">🔔</span>
+                                Email Notifications
+                            </span>
+                            <button class="btn btn-secondary btn-small" id="notificationBtn">Enabled</button>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">
+                                <span class="detail-icon">🔔</span>
+                                SMS Notifications
+                            </span>
+                            <button class="btn btn-secondary btn-small" id="notificationBtnSMS">Enabled</button>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="Profile.js"></script>
+</body>
+</html>
