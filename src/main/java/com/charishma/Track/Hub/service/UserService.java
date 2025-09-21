@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
-@Transactional  // ✅ ensures all DB operations here run in a transaction
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;
@@ -23,7 +23,6 @@ public class UserService {
     }
 
     public UserResponse register(RegistrationRequest req) {
-        // check if email exists
         Optional<User> existing = userRepository.findByEmail(req.getEmail());
         if (existing.isPresent()) {
             throw new IllegalArgumentException("Email already in use");
@@ -34,11 +33,10 @@ public class UserService {
         u.setLastName(req.getLastName());
         u.setEmail(req.getEmail());
         u.setPhone(req.getPhone());
-        u.setPasswordHash(passwordEncoder.encode(req.getPassword())); // HASH
+        u.setPasswordHash(passwordEncoder.encode(req.getPassword()));
         u.setIsVerified(false);
         u.setRole("USER");
 
-        // ✅ now guaranteed to persist because of @Transactional
         User saved = userRepository.save(u);
         return toResponse(saved);
     }
@@ -51,6 +49,13 @@ public class UserService {
             throw new IllegalArgumentException("Invalid credentials");
         }
 
+        return toResponse(u);
+    }
+
+    // ===== New method to fetch profile =====
+    public UserResponse getProfileByEmail(String email) {
+        User u = userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
         return toResponse(u);
     }
 

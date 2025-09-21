@@ -36,9 +36,21 @@ public class AuthController {
         } catch (IllegalArgumentException ex) {
             return ResponseEntity.status(401).body(ex.getMessage());
         } catch (Exception ex) {
-    ex.printStackTrace();
-    return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
-}
+            ex.printStackTrace();
+            return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
+        }
+    }
 
+    // ===== New endpoint to fetch profile =====
+    @GetMapping("/profile")
+    public ResponseEntity<?> profile(@RequestParam String email) {
+        try {
+            UserResponse res = userService.getProfileByEmail(email);
+            return ResponseEntity.ok(res);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.status(404).body(ex.getMessage());
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body("Server error: " + ex.getMessage());
+        }
     }
 }
