@@ -18,11 +18,11 @@
             <div class="nav-links">
                 <a href="dashboard.html" class="nav-link">Home</a>
                 <a href="profile.html" class="nav-link">Profile</a>
-                <a href="#" class="nav-link">My Posts</a>
+                <a href="MyPosts.html" class="nav-link">My Posts</a>
             </div>
             <div class="nav-actions">
-                <a href="#" class="btn btn-primary active">📸 Upload Item</a>
-                <a href="#" class="btn btn-outline">Logout</a>
+                <a href="Upload.html" class="btn btn-primary active">📸 Upload Item</a>
+                <a href="index.html" class="btn btn-outline">Logout</a>
             </div>
         </div>
     </nav>
@@ -32,15 +32,15 @@
         <div class="container">
             <!-- Upload Header -->
             <div class="upload-header">
-                <h1 class="upload-title">Upload Found Item</h1>
-                <p class="upload-subtitle">Help reunite lost items with their owners by sharing what you've found</p>
+                <h1 class="upload-title">Upload Item</h1>
+                <p class="upload-subtitle">Help reunite lost items with their owners by posting details here</p>
             </div>
 
             <!-- Success Message -->
             <div class="success-message" id="successMessage">
                 <div class="success-icon">✅</div>
                 <h3 class="success-title">Item Posted Successfully!</h3>
-                <p class="success-text">Your found item has been posted and is now visible to other students. You'll be notified when someone claims it.</p>
+                <p class="success-text">Your item has been posted and is now visible to other students. You'll be notified when someone claims it.</p>
             </div>
 
             <!-- Upload Form -->
@@ -52,13 +52,22 @@
                             <span>📝</span>
                             Basic Information
                         </h3>
-                        
+
+                        <div class="form-group">
+                            <label for="status">Status *</label>
+                            <select id="status" name="status" required>
+                                <option value="FOUND">Found</option>
+                                <option value="LOST">Lost</option>
+                            </select>
+                            <small>Select whether you found an item or lost one</small>
+                        </div>
+
                         <div class="form-group">
                             <label for="itemName">Item Name *</label>
                             <input type="text" id="itemName" name="itemName" required placeholder="e.g., iPhone 13 Pro, Red Backpack, Silver Watch">
-                            <small>Be specific about the item you found</small>
+                            <small>Be specific about the item</small>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="category">Category *</label>
                             <select id="category" name="category" required>
@@ -73,11 +82,11 @@
                                 <option value="other">🔍 Other</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="description">Description *</label>
                             <textarea id="description" name="description" required placeholder="Provide a detailed description of the item including color, brand, condition, any distinctive features, etc."></textarea>
-                            <small>The more details you provide, the easier it will be for the owner to identify their item</small>
+                            <small>The more details you provide, the easier it will be to identify the item</small>
                         </div>
                     </div>
 
@@ -87,7 +96,7 @@
                             <span>📸</span>
                             Item Photo
                         </h3>
-                        
+
                         <div class="form-group">
                             <label>Upload Photo *</label>
                             <div class="photo-upload" id="photoUpload">
@@ -99,7 +108,7 @@
                             <div class="photo-preview" id="photoPreview">
                                 <img class="preview-image" id="previewImage" alt="Preview">
                             </div>
-                            <small>A clear photo helps the owner identify their item quickly</small>
+                            <small>A clear photo helps identify the item quickly</small>
                         </div>
                     </div>
 
@@ -109,13 +118,13 @@
                             <span>📍</span>
                             Location Information
                         </h3>
-                        
+
                         <div class="form-group">
-                            <label for="foundLocation">Where did you find this item? *</label>
+                            <label for="foundLocation">Where did this happen? *</label>
                             <input type="text" id="foundLocation" name="foundLocation" required placeholder="e.g., Main Library, Student Cafeteria, Parking Lot B">
-                            <small>Be specific about the location to help verify ownership</small>
+                            <small>Be specific about the location</small>
                         </div>
-                        
+
                         <div class="location-section">
                             <div class="location-toggle">
                                 <div class="toggle-switch" id="locationToggle">
@@ -123,8 +132,8 @@
                                 </div>
                                 <label>Share my current location for meetup</label>
                             </div>
-                            <small style="color: #6b7280; margin-bottom: 16px; display: block;">This helps the owner know where to meet you for item pickup</small>
-                            
+                            <small style="color: #6b7280; margin-bottom: 16px; display: block;">This helps others know where to meet you</small>
+
                             <div class="location-info" id="locationInfo">
                                 <div class="location-status">
                                     <span>📍</span>
@@ -143,7 +152,7 @@
                             <span>📞</span>
                             Contact Information
                         </h3>
-                        
+
                         <div class="form-group">
                             <label for="contactMethod">Preferred Contact Method *</label>
                             <select id="contactMethod" name="contactMethod" required>
@@ -153,22 +162,34 @@
                                 <option value="both">📧📱 Both Email & Phone</option>
                             </select>
                         </div>
-                        
+
                         <div class="form-group">
                             <label for="additionalNotes">Additional Notes</label>
-                            <textarea id="additionalNotes" name="additionalNotes" placeholder="Any additional information that might help identify the owner or arrange pickup..."></textarea>
+                            <textarea id="additionalNotes" name="additionalNotes" placeholder="Any additional information that might help identify the item or arrange pickup..."></textarea>
                         </div>
                     </div>
 
                     <!-- Form Actions -->
                     <div class="form-actions">
                         <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
-                        <button type="submit" class="btn btn-primary">📤 Post Found Item</button>
+                        <button type="submit" class="btn btn-primary" id="submitBtn">📤 Post Item</button>
                     </div>
                 </form>
             </div>
         </div>
     </main>
+
+    <script>
+        // Update button text based on status
+        document.getElementById("status").addEventListener("change", function () {
+            const submitBtn = document.getElementById("submitBtn");
+            if (this.value === "LOST") {
+                submitBtn.textContent = "📤 Post Lost Item";
+            } else {
+                submitBtn.textContent = "📤 Post Found Item";
+            }
+        });
+    </script>
     <script src="Upload.js"></script>
 </body>
 </html>

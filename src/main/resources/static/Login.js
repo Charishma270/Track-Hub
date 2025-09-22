@@ -2,14 +2,14 @@ const loginForm = document.getElementById("loginForm");
 
 if (loginForm) {
     loginForm.addEventListener("submit", async (event) => {
-        event.preventDefault(); // Prevent form from submitting normally
+        event.preventDefault(); // Prevent default form submission
 
-        // Get email and password values
+        // Get values
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value.trim();
 
         try {
-            // Send login request to back-end
+            // Send login request
             const response = await fetch("http://localhost:8080/api/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -19,15 +19,17 @@ if (loginForm) {
             if (response.ok) {
                 const data = await response.json();
 
-                // ✅ Store email in localStorage so profile.js knows user is logged in
+                // ✅ Save user info in localStorage for later use
+                localStorage.setItem("userId", data.id);                // important for uploads
                 localStorage.setItem("userEmail", data.email);
-                localStorage.setItem("userName", data.firstName + " " + data.lastName); // optional
+                localStorage.setItem("userName", data.firstName + " " + data.lastName);
 
-                // Redirect to dashboard after successful login
+                alert("✅ Login successful! Welcome " + data.firstName);
+
+                // Redirect to dashboard
                 window.location.href = "dashboard.html";
             } else {
                 const errorText = await response.text();
-                // Show error message for failed login
                 alert("❌ Login failed: " + errorText);
             }
         } catch (err) {
