@@ -1,27 +1,27 @@
 let currentFilter = 'all';
-let items = [];   // This will come from backend
+let items = [];
 let filteredItems = [];
 
 // DOM Elements
 const itemsGrid = document.getElementById('itemsGrid');
 const filterButtons = document.querySelectorAll('.filter-btn');
-const dashboardUploadBtn = document.getElementById('uploadBtn'); // renamed
+const dashboardUploadBtn = document.getElementById('uploadBtn');
 
 // Initialize the dashboard
 async function initDashboard() {
-    await fetchItems();   // Fetch from backend
+    await fetchItems();
     renderItems();
     setupEventListeners();
     setupNavbarScroll();
 }
 
-// Fetch items from backend
+// Fetch posts from backend
 async function fetchItems() {
     try {
-        const response = await fetch("http://localhost:8080/api/items");
-        if (!response.ok) throw new Error("Failed to fetch items");
+        const response = await fetch("http://localhost:8080/api/posts/all");
+        if (!response.ok) throw new Error("Failed to fetch posts");
 
-        items = await response.json(); // backend returns JSON list
+        items = await response.json();
         filteredItems = [...items];
     } catch (error) {
         console.error("Error fetching items:", error);
@@ -29,7 +29,7 @@ async function fetchItems() {
     }
 }
 
-// Render items
+// Render posts
 function renderItems() {
     if (filteredItems.length === 0) {
         itemsGrid.innerHTML = `
@@ -43,46 +43,64 @@ function renderItems() {
         return;
     }
 
-    itemsGrid.innerHTML = filteredItems.map(item => `
-        <div class="item-card" data-category="${item.category}" data-status="${item.status}">
-            <img src="${item.imageUrl}" alt="${item.title}" class="item-image" loading="lazy">
-            <div class="item-content">
-                <h3 class="item-title">${item.title}</h3>
-                <p class="item-description">${item.description}</p>
-                <div class="item-meta">
-                    <span class="item-location">📍 ${item.location}</span>
-                    <span class="item-date">${item.date}</span>
-                </div>
-                <div class="item-meta">
-                    <span class="item-status status-${item.status}">
-                        ${item.status === 'lost' ? '🔍 Lost' : '✅ Found'}
-                    </span>
-                    <small style="color: #9ca3af;">by ${item.poster}</small>
-                </div>
-                <div class="item-actions">
-                    <button class="btn btn-secondary btn-small" onclick="contactPoster(${item.id})">💬 Contact</button>
-                    <button class="btn btn-primary btn-small" onclick="viewDetails(${item.id})">👁️ Details</button>
+    itemsGrid.innerHTML = filteredItems.map(item => {
+        const imageSrc = item.photoUrl
+            ? `data:image/png;base64,${item.photoUrl}`
+            : "placeholder.png";
+
+        return `
+            <div class="item-card" data-category="${item.category}" data-status="${item.status}">
+                <img src="${imageSrc}" alt="${item.title}" class="item-image" loading="lazy">
+                <div class="item-content">
+                    <h3 class="item-title">${item.title}</h3>
+                    <p class="item-description">${item.description}</p>
+                    <div class="item-meta">
+                        <span class="item-location">📍 ${item.location}</span>
+                    </div>
+                    <div class="item-meta">
+                        <span class="item-status status-${item.status.toLowerCase()}">
+                            ${item.status === 'LOST' ? '🔍 Lost' : '✅ Found'}
+                        </span>
+                        <small style="color: #9ca3af;">by User #${item.userId}</small>
+                    </div>
+                    <div class="item-actions">
+                        <button class="btn btn-secondary btn-small" onclick="contactPoster(${item.id})">💬 Contact</button>
+                        <button class="btn btn-primary btn-small" onclick="viewDetails(${item.id})">👁️ Details</button>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-// Filtering (same as your code)
+// Filtering
 function filterItems(filter) {
     currentFilter = filter;
 
     if (filter === 'all') {
         filteredItems = [...items];
     } else if (filter === 'lost' || filter === 'found') {
-        filteredItems = items.filter(item => item.status === filter);
+        filteredItems = items.filter(item => item.status.toLowerCase() === filter);
     } else {
-        filteredItems = items.filter(item => item.category === filter);
+        filteredItems = items.filter(item => item.category.toLowerCase() === filter);
     }
 
     renderItems();
 }
 
-// Other functions (contactPoster, viewDetails, clearFilters, etc.) stay same...
-document.addEventListener('DOMContentLoaded', initDashboard);
+// Clear filters
+function clearFilters() {
+    currentFilter = 'all';
+    filteredItems = [...items];
+    renderItems();
+}
 
+// Dummy handlers for now
+function contactPoster(id) {
+    alert("Contact poster feature coming soon for post ID " + id);
+}
+function viewDetails(id) {
+    alert("View details feature coming soon for post ID " + id);
+}
+
+document.addEventListener('DOMContentLoaded', initDashboard);

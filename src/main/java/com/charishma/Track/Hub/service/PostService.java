@@ -56,9 +56,10 @@ public class PostService {
         }
 
         // ContactMethod mapping: enum in Post is defined as lowercase (email, phone, both)
-        if (req.getContactPublic() != null) {
-            post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toLowerCase()));
+       if (req.getContactPublic() != null) {
+           post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toUpperCase()));
         }
+
 
         post.setAdditionalNotes(req.getAdditionalNotes());
         post.setCategory(req.getCategory());
