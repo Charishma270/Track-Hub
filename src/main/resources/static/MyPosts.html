@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>My Posts - Lost & Found Portal</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="MyPosts.css">
@@ -37,29 +37,28 @@
             </div>
 
             <!-- Stats Section -->
-<div class="stats-section" id="statsPosts">
-    <div class="stat-card">
-        <div class="stat-icon">📝</div>
-        <span class="stat-number" id="totalPosts">0</span>
-        <div class="stat-label">Total Posts</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">✅</div>
-        <span class="stat-number" id="resolvedPosts">0</span>
-        <div class="stat-label">Items Returned</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">🔍</div>
-        <span class="stat-number" id="activePosts">0</span>
-        <div class="stat-label">Active Posts</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon">💬</div>
-        <span class="stat-number" id="messagesReceived">0</span>
-        <div class="stat-label">Messages Received</div>
-    </div>
-</div>
-
+            <div class="stats-section" id="statsPosts">
+                <div class="stat-card">
+                    <div class="stat-icon">📝</div>
+                    <span class="stat-number" id="totalPosts">0</span>
+                    <div class="stat-label">Total Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">✅</div>
+                    <span class="stat-number" id="resolvedPosts">0</span>
+                    <div class="stat-label">Items Returned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🔍</div>
+                    <span class="stat-number" id="activePosts">0</span>
+                    <div class="stat-label">Active Posts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💬</div>
+                    <span class="stat-number" id="messagesReceived">0</span>
+                    <div class="stat-label">Messages Received</div>
+                </div>
+            </div>
 
             <!-- Posts Section -->
             <div class="posts-section">
@@ -81,19 +80,94 @@
         </div>
     </main>
 
-    <!-- Messages Modal -->
-    <div class="modal" id="messagesModal">
+    <!-- Edit Post Modal -->
+    <div class="modal" id="editModal" aria-hidden="true" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="editModalTitle">Edit Post</h3>
+                <button class="close-btn" id="closeEditModal">&times;</button>
+            </div>
+
+            <form id="editForm">
+                <input type="hidden" id="editPostId" />
+                <div class="form-row">
+                    <label for="editTitle">Item Name</label>
+                    <input id="editTitle" name="title" required />
+                </div>
+
+                <div class="form-row">
+                    <label for="editCategory">Category</label>
+                    <select id="editCategory" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="electronics">Electronics</option>
+                        <option value="accessories">Accessories</option>
+                        <option value="books">Books</option>
+                        <option value="clothing">Clothing</option>
+                        <option value="jewelry">Jewelry</option>
+                        <option value="keys">Keys</option>
+                        <option value="documents">Documents</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="editDescription">Description</label>
+                    <textarea id="editDescription" name="description" rows="4" required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label for="editLocation">Location</label>
+                    <input id="editLocation" name="location" required />
+                </div>
+
+                <div class="form-row">
+                    <label for="editStatus">Status</label>
+                    <select id="editStatus" name="status">
+                        <option value="FOUND">Found</option>
+                        <option value="LOST">Lost</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="editContact">Contact Method</label>
+                    <select id="editContact" name="contactPublic">
+                        <option value="EMAIL">Email</option>
+                        <option value="PHONE">Phone</option>
+                        <option value="BOTH">Both</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <label for="editAdditionalNotes">Additional Notes</label>
+                    <textarea id="editAdditionalNotes" name="additionalNotes" rows="2"></textarea>
+                </div>
+
+                <div class="form-row">
+                    <label>Current Photo</label>
+                    <img id="editPreview" src="placeholder.png" alt="preview" style="max-width:180px;display:block;margin-bottom:8px;">
+                    <input type="file" id="editPhotoInput" accept="image/*" />
+                    <small>Choose a file to replace photo (optional)</small>
+                </div>
+
+                <div class="form-actions" style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px;">
+                    <button type="button" class="btn btn-secondary" id="cancelEditBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Messages Modal (kept for future) -->
+    <div class="modal" id="messagesModal" style="display:none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Messages</h3>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
-            <div id="messagesContent">
-                <!-- Messages will be populated by JavaScript -->
-            </div>
+            <div id="messagesContent"></div>
             <div class="reply-section">
                 <textarea class="reply-textarea" placeholder="Type your reply here..." id="replyText"></textarea>
-                <div style="margin-top: 12px; display: flex; gap: 12px; justify-content: flex-end;">
+                <div style="margin-top: 12px; display:flex; gap:12px; justify-content:flex-end;">
                     <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
                     <button class="btn btn-primary" onclick="sendReply()">Send Reply</button>
                 </div>
@@ -101,6 +175,6 @@
         </div>
     </div>
 
-   <script src="MyPosts.js"></script> 
+    <script src="MyPosts.js"></script>
 </body>
 </html>

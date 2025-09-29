@@ -88,4 +88,49 @@ public class PostService {
                 .map(this::toResponse)
                 .toList();
     }
+
+    // Delete a post
+public void deletePost(Long id) {
+    Post post = postRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
+    postRepository.delete(post);
+}
+
+// Update a post
+public PostResponse updatePost(Long id, PostRequest req) {
+    Post post = postRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
+
+    // Update fields
+    if (req.getTitle() != null) post.setTitle(req.getTitle());
+    if (req.getDescription() != null) post.setDescription(req.getDescription());
+    if (req.getLocation() != null) post.setLocation(req.getLocation());
+    if (req.getCategory() != null) post.setCategory(req.getCategory());
+    if (req.getAdditionalNotes() != null) post.setAdditionalNotes(req.getAdditionalNotes());
+
+    // Convert Base64 -> byte[] if provided
+    if (req.getPhotoUrl() != null && !req.getPhotoUrl().isBlank()) {
+        try {
+            String base64 = req.getPhotoUrl().replaceFirst("^data:image/[^;]+;base64,", "");
+            byte[] decoded = Base64.getDecoder().decode(base64);
+            post.setPhotoUrl(decoded);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid Base64 image data");
+        }
+    }
+
+    // Status
+    if (req.getStatus() != null) {
+        post.setStatus(Post.Status.valueOf(req.getStatus().toUpperCase()));
+    }
+
+    // ContactMethod
+    if (req.getContactPublic() != null) {
+        post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toUpperCase()));
+    }
+
+    Post saved = postRepository.save(post);
+    return new PostResponse(saved);
+}
+
 }
