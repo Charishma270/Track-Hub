@@ -48,8 +48,10 @@ function renderItems() {
             ? `data:image/png;base64,${item.photoUrl}`
             : "placeholder.png";
 
+        const status = item.status ? item.status.toUpperCase() : "UNKNOWN";
+
         return `
-            <div class="item-card" data-category="${item.category}" data-status="${item.status}">
+            <div class="item-card" data-category="${item.category}" data-status="${status}">
                 <img src="${imageSrc}" alt="${item.title}" class="item-image" loading="lazy">
                 <div class="item-content">
                     <h3 class="item-title">${item.title}</h3>
@@ -58,8 +60,8 @@ function renderItems() {
                         <span class="item-location">📍 ${item.location}</span>
                     </div>
                     <div class="item-meta">
-                        <span class="item-status status-${item.status.toLowerCase()}">
-                            ${item.status === 'LOST' ? '🔍 Lost' : '✅ Found'}
+                        <span class="item-status status-${status.toLowerCase()}">
+                            ${status === 'LOST' ? '🔍 Lost' : '✅ Found'}
                         </span>
                         <small style="color: #9ca3af;">by User #${item.userId}</small>
                     </div>
@@ -80,9 +82,13 @@ function filterItems(filter) {
     if (filter === 'all') {
         filteredItems = [...items];
     } else if (filter === 'lost' || filter === 'found') {
-        filteredItems = items.filter(item => item.status.toLowerCase() === filter);
+        filteredItems = items.filter(item => 
+            item.status && item.status.toLowerCase() === filter
+        );
     } else {
-        filteredItems = items.filter(item => item.category.toLowerCase() === filter);
+        filteredItems = items.filter(item => 
+            item.category && item.category.toLowerCase() === filter
+        );
     }
 
     renderItems();

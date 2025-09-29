@@ -22,7 +22,7 @@
             </div>
             <div class="nav-actions">
                 <a href="upload.html" class="btn btn-primary">📸 Upload Item</a>
-                <a href="#" class="btn btn-outline">Logout</a>
+                <a href="index.html" class="btn btn-outline">Logout</a>
             </div>
         </div>
     </nav>
@@ -37,28 +37,29 @@
             </div>
 
             <!-- Stats Section -->
-            <div class="stats-section">
-                <div class="stat-card">
-                    <div class="stat-icon">📝</div>
-                    <span class="stat-number">12</span>
-                    <div class="stat-label">Total Posts</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">✅</div>
-                    <span class="stat-number">8</span>
-                    <div class="stat-label">Items Returned</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🔍</div>
-                    <span class="stat-number">4</span>
-                    <div class="stat-label">Active Posts</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">💬</div>
-                    <span class="stat-number">23</span>
-                    <div class="stat-label">Messages Received</div>
-                </div>
-            </div>
+<div class="stats-section" id="statsPosts">
+    <div class="stat-card">
+        <div class="stat-icon">📝</div>
+        <span class="stat-number" id="totalPosts">0</span>
+        <div class="stat-label">Total Posts</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <span class="stat-number" id="resolvedPosts">0</span>
+        <div class="stat-label">Items Returned</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🔍</div>
+        <span class="stat-number" id="activePosts">0</span>
+        <div class="stat-label">Active Posts</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">💬</div>
+        <span class="stat-number" id="messagesReceived">0</span>
+        <div class="stat-label">Messages Received</div>
+    </div>
+</div>
+
 
             <!-- Posts Section -->
             <div class="posts-section">

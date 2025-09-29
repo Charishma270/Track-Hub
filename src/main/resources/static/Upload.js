@@ -139,17 +139,19 @@ async function handleFormSubmit(e) {
         const user = await profileRes.json();
 
         // ✅ Prepare payload with category
-        const payload = {
-            userId: user.id,
-            title,
-            category,
-            description,
-            location,
-            photoUrl: base64Photo,
-            status: 'FOUND', // default
-            contactPublic: contactMethod, // email / phone / both
-            additionalNotes
-        };
+       const payload = {
+    userId: user.id,
+    title,
+    category,
+    description,
+    location,
+    photoUrl: base64Photo,
+    status: 'FOUND', // default
+    contactPublic: contactMethod.toUpperCase(), // EMAIL / PHONE / BOTH
+    additionalNotes
+};
+console.log("Payload being sent:", payload);
+
 
         // Send to backend
         const res = await fetch('http://localhost:8080/api/posts/create', {

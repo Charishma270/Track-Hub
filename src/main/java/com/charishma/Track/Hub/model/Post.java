@@ -42,7 +42,7 @@ public class Post {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "contact_public", nullable = false)
-    private ContactMethod contactPublic = ContactMethod.email;
+    private ContactMethod contactPublic = ContactMethod.EMAIL;
 
     @Column(columnDefinition = "TEXT")
     private String additionalNotes;
@@ -55,7 +55,8 @@ public class Post {
 
     // ===== Enums =====
     public enum Status { LOST, FOUND }
-    public enum ContactMethod { email, phone, both }
+    public enum ContactMethod { EMAIL, PHONE, BOTH}
+
 
     // ===== Lifecycle Hooks =====
     @PrePersist
