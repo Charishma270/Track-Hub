@@ -1,5 +1,4 @@
 // ====== Elements ======
-const editProfileBtn = document.getElementById('editProfileBtn');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 const personalInfo = document.getElementById('personalInfo');
 const editForm = document.getElementById('editForm');
@@ -10,7 +9,6 @@ const notificationBtnSMS = document.getElementById('notificationBtnSMS');
 
 // ====== Initialize Profile ======
 function initProfile() {
-    // Ensure user is logged in
     const email = localStorage.getItem('userEmail');
     if (!email) {
         alert('You are not logged in. Please log in first.');
@@ -44,79 +42,68 @@ async function fetchProfile(email) {
             detailItems[1].querySelector('.detail-value').textContent = data.email || '';
             detailItems[2].querySelector('.detail-value').textContent = data.phone || '';
         }
+
+        // ✅ Fetch posts count for this user
+        fetchUserPosts(data.id);
+
     } catch (err) {
         console.error('Error fetching profile:', err);
         alert('Failed to load profile data.');
     }
 }
 
+// ====== Fetch User Posts & Update Stats ======
+async function fetchUserPosts(userId) {
+    try {
+        const res = await fetch(`http://localhost:8080/api/posts/user/${userId}`);
+        if (!res.ok) throw new Error('Failed to fetch user posts');
+        const posts = await res.json();
+
+        // Items Posted = all posts
+        document.getElementById('itemsPosted').textContent = posts.length;
+
+        // Items Found = posts with status "FOUND"
+        const foundCount = posts.filter(p => p.status === "FOUND").length;
+        document.getElementById('itemsFound').textContent = foundCount;
+
+    } catch (err) {
+        console.error("Error fetching user posts:", err);
+    }
+}
+
 // ====== Event Listeners ======
 function setupEventListeners() {
-    // Edit Profile
-    editProfileBtn?.addEventListener('click', () => {
-        personalInfo.style.display = 'none';
-        editForm.classList.add('active');
-        editProfileBtn.textContent = '📝 Editing...';
-        editProfileBtn.disabled = true;
-    });
-
     cancelEditBtn?.addEventListener('click', () => {
         personalInfo.style.display = 'block';
         editForm.classList.remove('active');
-        editProfileBtn.textContent = '✏️ Edit Profile';
-        editProfileBtn.disabled = false;
     });
 
-    // Save Changes
     editForm?.querySelector('form')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        const button = e.target.querySelector('button[type="submit"]');
-        const originalText = button.textContent;
-
-        button.textContent = 'Saving...';
-        button.disabled = true;
-
-        // Simulate save and update display
-        setTimeout(() => {
-            alert('Profile updated successfully!');
-            personalInfo.style.display = 'block';
-            editForm.classList.remove('active');
-            editProfileBtn.textContent = '✏️ Edit Profile';
-            editProfileBtn.disabled = false;
-            button.textContent = originalText;
-            button.disabled = false;
-            updateProfileDisplay();
-        }, 2000);
+        alert('Save changes to backend not implemented yet.');
     });
 
-    // Upload Button
     profileUploadBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         window.location.href = 'Upload.html';
     });
 
-    // Change Password
     changePasswordBtn?.addEventListener('click', () => {
         alert('Change Password form would appear here.');
     });
 
-    // Notification Buttons
     notificationBtn?.addEventListener('click', () => toggleNotification(notificationBtn, 'Email'));
     notificationBtnSMS?.addEventListener('click', () => toggleNotification(notificationBtnSMS, 'SMS'));
 
-    // Navigation Links
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             link.classList.add('active');
-
-            const section = link.textContent.trim();
-            handleNavigation(section);
+            handleNavigation(link.textContent.trim());
         });
     });
 
-    // Logout Button
     document.querySelector('.btn-outline')?.addEventListener('click', handleLogout);
 }
 
@@ -129,41 +116,19 @@ function toggleNotification(button, type) {
     alert(`${type} notifications ${isEnabled ? 'disabled' : 'enabled'}`);
 }
 
-// ====== Update Profile Display ======
-function updateProfileDisplay() {
-    const firstName = document.getElementById('firstName').value;
-    const lastName = document.getElementById('lastName').value;
-    const email = document.getElementById('email').value;
-    const phone = document.getElementById('phone').value;
-
-    document.querySelector('.profile-name').textContent = `${firstName} ${lastName}`;
-    const detailItems = document.querySelectorAll('.detail-item');
-    if (detailItems.length >= 3) {
-        detailItems[0].querySelector('.detail-value').textContent = `${firstName} ${lastName}`;
-        detailItems[1].querySelector('.detail-value').textContent = email;
-        detailItems[2].querySelector('.detail-value').textContent = phone;
-    }
-}
-
 // ====== Navigation ======
 function handleNavigation(section) {
     switch (section) {
-        case 'Home':
-            window.location.href = 'dashboard.html';
-            break;
-        case 'Profile':
-            // Stay on current page
-            break;
-        case 'My Posts':
-            window.location.href = 'MyPosts.html';
-            break;
+        case 'Home': window.location.href = 'dashboard.html'; break;
+        case 'Profile': break;
+        case 'My Posts': window.location.href = 'MyPosts.html'; break;
     }
 }
 
 // ====== Logout ======
 function handleLogout() {
     if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('userEmail'); // Clear email
+        localStorage.removeItem('userEmail');
         window.location.href = 'index.html';
     }
 }
@@ -181,5 +146,4 @@ function setupNavbarScroll() {
     });
 }
 
-// ====== Initialize ======
 document.addEventListener('DOMContentLoaded', initProfile);
