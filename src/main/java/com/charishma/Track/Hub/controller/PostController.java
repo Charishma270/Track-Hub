@@ -7,6 +7,8 @@ import com.charishma.Track.Hub.dto.PostResponse;
 import com.charishma.Track.Hub.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.charishma.Track.Hub.dto.ClaimRequest;
+import com.charishma.Track.Hub.model.Claim;
 
 import java.util.List;
 
@@ -135,4 +137,22 @@ public class PostController {
             return ResponseEntity.status(500).body("Error sending message: " + e.getMessage());
         }
     }
+    // -------------------------
+    // Submit claim for found item
+    // -------------------------
+
+@PostMapping("/{id}/claim")
+public ResponseEntity<?> submitClaim(@PathVariable Long id, @RequestBody ClaimRequest req) {
+    try {
+        Claim claim = postService.createClaim(id, req);
+        return ResponseEntity.ok(claim); // or a simpler message
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body("Invalid request: " + e.getMessage());
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500).body("Error creating claim: " + e.getMessage());
+    }
+}
+
+
 }

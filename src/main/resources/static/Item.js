@@ -11,6 +11,49 @@ function initLostItem() {
     loadItemDetails();
 }
 
+function claimItem() {
+    const id = getPostIdFromUrl();
+    if (!id) {
+        showInlineItemError('No post selected for claim.');
+        return;
+    }
+
+    // Show a small prompt modal form to collect claimer details (or reuse contact modal)
+    // We'll reuse the contact modal style: open a quick prompt sequence
+    const name = prompt('Enter your full name to claim this item:');
+    if (!name) return;
+    const email = prompt('Enter your email:');
+    if (!email) return;
+    const phone = prompt('Enter your phone (optional):', '');
+    const reason = prompt('Optional: any details to help verify you are the owner:', '');
+
+    const payload = {
+        claimerName: name.trim(),
+        claimerEmail: email.trim(),
+        claimerPhone: phone ? phone.trim() : '',
+        claimReason: reason ? reason.trim() : ''
+    };
+
+    // disable UI briefly
+    if (!confirm('Submit claim? A message will be sent to the poster to verify ownership.')) return;
+
+    fetch(`${API_BASE}/${encodeURIComponent(id)}/claim`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(async res => {
+        const text = await res.text().catch(() => '');
+        if (!res.ok) throw new Error(text || 'Failed to submit claim');
+        alert('Claim submitted successfully. Poster will be notified.');
+    })
+    .catch(err => {
+        console.error('Claim submission failed:', err);
+        alert('Failed to submit claim. Try again later.');
+    });
+}
+
+
 function setupEventListeners() {
     const contactForm = document.getElementById('contactForm');
     if (contactForm) contactForm.addEventListener('submit', handleContactSubmission);

@@ -16,16 +16,16 @@ public class Message {
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
-    @Column(nullable = false)
+    @Column(name = "sender_name", nullable = false)
     private String senderName;
 
-    @Column(nullable = false)
+    @Column(name = "sender_email", nullable = false)
     private String senderEmail;
 
-    @Column
+    @Column(name = "sender_phone")
     private String senderPhone;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "message_text", columnDefinition = "TEXT", nullable = false)
     private String messageText;
 
     @Column(name = "created_at", columnDefinition = "DATETIME")
@@ -36,7 +36,7 @@ public class Message {
         createdAt = LocalDateTime.now();
     }
 
-    // getters & setters
+    // getters / setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
