@@ -1,4 +1,6 @@
 // Item.js - robust item detail loader (no blocking alerts)
+// Rewritten: robust date parsing, defensive field access, better logging
+
 const API_BASE = "http://localhost:8080/api/posts";
 
 document.addEventListener('DOMContentLoaded', initLostItem);
@@ -27,7 +29,7 @@ function setupEventListeners() {
     if (modal) modal.addEventListener('click', (e) => { if (e.target === modal) closeContactModal(); });
 }
 
-// get id from ?id=, path /item.html/123 or hash #id=123
+// ----- URL / ID helpers -----
 function getPostIdFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const idFromQuery = params.get('id');
@@ -48,6 +50,7 @@ function getPostIdFromUrl() {
     return null;
 }
 
+// ----- Inline UI for errors (non-blocking) -----
 function showInlineItemError(message) {
     console.warn(message);
     const container = document.querySelector('.container') || document.querySelector('main') || document.body;
@@ -64,6 +67,7 @@ function showInlineItemError(message) {
     `;
 }
 
+// ----- Fetch and populate -----
 function loadItemDetails() {
     const id = getPostIdFromUrl();
     if (!id) {
@@ -91,12 +95,92 @@ function loadItemDetails() {
         });
 }
 
+// ----- Robust date parsing for "Member since" -----
+function formatMemberSince(raw) {
+    if (raw === null || raw === undefined || raw === '') return 'Member since —';
+
+    // If already a Date
+    if (raw instanceof Date && !isNaN(raw)) {
+        return `Member since ${raw.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+    }
+
+    // If number (seconds or ms)
+    if (typeof raw === 'number') {
+        const asMillis = raw < 1e12 ? raw * 1000 : raw;
+        const d = new Date(asMillis);
+        if (!isNaN(d)) return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+    }
+
+    // If string (ISO or other)
+    if (typeof raw === 'string') {
+        const s = raw.trim();
+
+        // /Date(1234567890)/ format
+        const msMatch = s.match(/\/Date\((\d+)(?:[+-]\d+)?\)\//);
+        if (msMatch) {
+            const d = new Date(parseInt(msMatch[1], 10));
+            if (!isNaN(d)) return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+
+        // Try ISO parse
+        const dIso = new Date(s);
+        if (!isNaN(dIso)) {
+            return `Member since ${dIso.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+
+        // try fallback parse
+        const parsed = Date.parse(s);
+        if (!isNaN(parsed)) {
+            const d2 = new Date(parsed);
+            return `Member since ${d2.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+    }
+
+    // If object like {year,month,day}
+    if (typeof raw === 'object') {
+        const r = raw;
+        if (r.year !== undefined && r.month !== undefined) {
+            const y = Number(r.year);
+            const m = Number(r.month) - 1;
+            const day = r.day !== undefined ? Number(r.day) : 1;
+            const d = new Date(y, m, day);
+            if (!isNaN(d)) return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+
+        if (r.seconds !== undefined) {
+            const ms = Number(r.seconds) * 1000 + (r.nanos ? Math.floor(Number(r.nanos) / 1e6) : 0);
+            const d = new Date(ms);
+            if (!isNaN(d)) return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+
+        if (r.createdAt || r.created_at) {
+            return formatMemberSince(r.createdAt ?? r.created_at);
+        }
+    }
+
+    // final string attempt
+    try {
+        const asString = String(raw);
+        const p = Date.parse(asString);
+        if (!isNaN(p)) {
+            const d = new Date(p);
+            return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
+        }
+    } catch (e) { /* ignore */ }
+
+    return 'Member since —';
+}
+
+// ----- Populate UI -----
 function populateItemDetails(post) {
-    // title
+    console.log('POST DETAIL (full):', post);
+    console.log('POST DETAIL user object:', post.user);
+
+    // Title
     const titleEl = document.querySelector('.item-title');
     if (titleEl) titleEl.textContent = post.title || 'Untitled';
 
-    // description area: replace inner content
+    // Description
     const descContainer = document.querySelector('.item-description');
     if (descContainer) {
         descContainer.innerHTML = '';
@@ -105,40 +189,69 @@ function populateItemDetails(post) {
         descContainer.appendChild(p);
     }
 
-    // metadata: location and createdAt
+    // Metadata: location and createdAt for post
     const metaSpans = document.querySelectorAll('.item-meta .meta-item span');
     if (metaSpans && metaSpans.length >= 2) {
         metaSpans[0].textContent = post.location || 'Unknown location';
         metaSpans[1].textContent = post.createdAt ? `Posted ${new Date(post.createdAt).toLocaleString()}` : '';
     }
 
-    // image variations: dto uses photoBase64, backend uses byte[] -> DTO base64
+    // Image handling (supports several field names)
     const mainImage = document.getElementById('mainImage');
     const imageBase64 = post.photoBase64 ?? post.photoUrl ?? post.image ?? null;
     const imageMime = post.photoMime || 'image/jpeg';
-    if (mainImage && imageBase64) {
-        mainImage.src = `data:${imageMime};base64,${imageBase64}`;
+    if (mainImage) {
+        if (imageBase64) mainImage.src = `data:${imageMime};base64,${imageBase64}`;
+        // else keep existing placeholder image in HTML
     }
 
-    // poster info
+    // Poster info: name, email, phone, member since
     if (post.user) {
         const posterNameEl = document.querySelector('.poster-details h3');
         if (posterNameEl) posterNameEl.textContent = `${post.user.firstName || ''} ${post.user.lastName || ''}`.trim();
 
+        // prefer multiple selectors: check for 3 p tags, otherwise fallback to .poster-member-since
         const posterPs = document.querySelectorAll('.poster-details p');
-        if (posterPs && posterPs.length >= 2) {
-            posterPs[0].textContent = `📧 ${post.user.email || 'Not provided'}`;
-            posterPs[1].textContent = post.user.phone ? `📞 ${post.user.phone}` : '📞 Not provided';
+
+        // Determine created value robustly (try multiple property names)
+        const u = post.user || {};
+        const createdValue = u.createdAt ?? u.created_at ?? u.created_date ?? u.created;
+
+        if (posterPs && posterPs.length >= 3) {
+            posterPs[0].textContent = `📧 ${u.email || 'Not provided'}`;
+            posterPs[1].textContent = u.phone ? `📞 ${u.phone}` : '📞 Not provided';
+            posterPs[2].textContent = formatMemberSince(createdValue);
+        } else {
+            if (posterPs && posterPs.length >= 1) {
+                posterPs[0].textContent = `📧 ${u.email || 'Not provided'}`;
+            }
+            const memberEl = document.querySelector('.poster-member-since');
+            if (memberEl) memberEl.textContent = formatMemberSince(createdValue);
         }
 
         const modalTitle = document.querySelector('.modal-title');
         if (modalTitle) modalTitle.textContent = `Contact ${post.user.firstName || ''}`.trim();
     }
 
+    // Dynamic Location Details block (location + additionalNotes)
+    const locationInfo = document.querySelector('.location-info .location-details') || document.querySelector('.location-info');
+    if (locationInfo) {
+        let locHtml = '';
+        if (post.location) locHtml += `<h3>${escapeHtml(post.location)}</h3>`;
+        if (post.additionalNotes) {
+            locHtml += `<p>${escapeHtml(post.additionalNotes)}</p>`;
+        } else if (post.description) {
+            locHtml += `<p>${escapeHtml(post.description)}</p>`;
+        } else {
+            locHtml += `<p>Location information not provided.</p>`;
+        }
+        locationInfo.innerHTML = locHtml;
+    }
+
     // status badge
     const statusEl = document.querySelector('.item-status');
     if (statusEl) {
-        if (post.status && post.status.toUpperCase() === 'FOUND') {
+        if (post.status && String(post.status).toUpperCase() === 'FOUND') {
             statusEl.textContent = '✅ Found Item';
             statusEl.classList.remove('status-lost');
             statusEl.classList.add('status-found');
@@ -150,6 +263,7 @@ function populateItemDetails(post) {
     }
 }
 
+// ----- Contact form handling -----
 function handleContactSubmission(e) {
     e.preventDefault();
     const id = getPostIdFromUrl();
@@ -183,7 +297,7 @@ function handleContactSubmission(e) {
     .then(async res => {
         const text = await res.text().catch(() => '');
         if (!res.ok) throw new Error(text || 'Failed to send');
-        // success: show informal inline confirmation
+        // success: show informal inline confirmation (alert preserved here)
         alert(text || 'Message sent successfully');
         closeContactModal();
     })
@@ -196,6 +310,7 @@ function handleContactSubmission(e) {
     });
 }
 
+// ----- Misc UI helpers -----
 function openContactModal() { document.getElementById('contactModal')?.classList.add('active'); }
 function closeContactModal() { document.getElementById('contactModal')?.classList.remove('active'); document.getElementById('contactForm')?.reset(); }
 
@@ -224,7 +339,7 @@ function setupNavbarScroll() {
     });
 }
 
-// small escape helper used above
+// small escape helper
 function escapeHtml(str) {
     return String(str)
         .replace(/&/g, '&amp;')
@@ -232,4 +347,10 @@ function escapeHtml(str) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
+}
+function formatMemberSince(dateString) {
+    if (!dateString) return 'Member since —';
+    const d = new Date(dateString);
+    if (isNaN(d)) return 'Member since —';
+    return `Member since ${d.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}`;
 }

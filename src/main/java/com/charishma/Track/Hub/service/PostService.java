@@ -192,9 +192,10 @@ public class PostService {
             userInfo.setLastName(u.getLastName());
             userInfo.setEmail(u.getEmail());
             userInfo.setPhone(u.getPhone());
+        // ADD createdAt so frontend can display "Member since"
+        userInfo.setCreatedAt(u.getCreatedAt());
         }
         dto.setUser(userInfo);
-
         return dto;
     }
 
