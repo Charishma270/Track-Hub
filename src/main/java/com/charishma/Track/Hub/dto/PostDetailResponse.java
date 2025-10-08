@@ -25,6 +25,9 @@ public class PostDetailResponse {
         private String email;
         private String phone;
         private LocalDateTime createdAt;  // 👈 ADD THIS FIELD
+        private Long itemsPosted;
+        private Long itemsReturned;
+        private Double rating;
 
         
         // getters/setters
@@ -40,7 +43,13 @@ public class PostDetailResponse {
         public void setPhone(String phone) { this.phone = phone; }
         public LocalDateTime getCreatedAt() { return createdAt; }
         public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-    }
+        public Long getItemsPosted() { return itemsPosted; }
+        public void setItemsPosted(Long itemsPosted) { this.itemsPosted = itemsPosted; }
+        public Long getItemsReturned() { return itemsReturned; }
+        public void setItemsReturned(Long itemsReturned) { this.itemsReturned = itemsReturned; }
+        public Double getRating() { return rating; }
+        public void setRating(Double rating) { this.rating = rating; }
+}
 
     private UserInfo user;
 

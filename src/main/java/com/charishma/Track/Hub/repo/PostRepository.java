@@ -20,4 +20,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // ✅ Get posts by location (e.g., "Library")
     List<Post> findByLocationContainingIgnoreCase(String location);
+    // count posts by user
+    long countByUserId(Long userId);
+    
+    // count posts by user where isClaimed = true (i.e., returned)
+    long countByUserIdAndIsClaimedTrue(Long userId);
+
 }

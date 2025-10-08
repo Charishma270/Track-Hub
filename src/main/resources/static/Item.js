@@ -233,6 +233,41 @@ function populateItemDetails(post) {
         if (modalTitle) modalTitle.textContent = `Contact ${post.user.firstName || ''}`.trim();
     }
 
+        // --- POSTER STATISTICS (insert here) ---
+    // Replace static stats with live values from post.user (safe fallbacks)
+    const statsContainer = document.querySelector('.poster-stats');
+    if (statsContainer) {
+        const u = post.user || {};
+
+        // try multiple possible field names (backend might send different names)
+        const itemsPosted = (u.itemsPosted ?? u.items_posted ?? u.itemsPostedCount ?? u.postCount ?? null);
+        const itemsReturned = (u.itemsReturned ?? u.items_returned ?? u.itemsReturnedCount ?? u.returnedCount ?? null);
+        const ratingRaw = (u.rating ?? u.avgRating ?? u.ratingValue ?? null);
+
+        const itemsPostedDisplay = (itemsPosted !== null && itemsPosted !== undefined) ? String(itemsPosted) : '—';
+        const itemsReturnedDisplay = (itemsReturned !== null && itemsReturned !== undefined) ? String(itemsReturned) : '—';
+        const ratingDisplay = (ratingRaw !== null && ratingRaw !== undefined && !Number.isNaN(Number(ratingRaw)))
+            ? (Number(ratingRaw).toFixed(1))
+            : '—';
+
+        statsContainer.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-number">${escapeHtml(itemsPostedDisplay)}</span>
+                <span class="stat-label">Items Posted</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">${escapeHtml(itemsReturnedDisplay)}</span>
+                <span class="stat-label">Items Returned</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">${escapeHtml(ratingDisplay)}</span>
+                <span class="stat-label">Rating</span>
+            </div>
+        `;
+    }
+    // --- end poster stats ---
+
+
     // Dynamic Location Details block (location + additionalNotes)
     const locationInfo = document.querySelector('.location-info .location-details') || document.querySelector('.location-info');
     if (locationInfo) {
@@ -261,6 +296,8 @@ function populateItemDetails(post) {
             statusEl.classList.add('status-lost');
         }
     }
+
+    
 }
 
 // ----- Contact form handling -----

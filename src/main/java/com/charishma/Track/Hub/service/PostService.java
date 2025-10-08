@@ -194,6 +194,18 @@ public class PostService {
             userInfo.setPhone(u.getPhone());
         // ADD createdAt so frontend can display "Member since"
         userInfo.setCreatedAt(u.getCreatedAt());
+        Long postedCount = 0L;
+    Long returnedCount = 0L;
+    try {
+        postedCount = postRepository.countByUserId(u.getId());
+        returnedCount = postRepository.countByUserIdAndIsClaimedTrue(u.getId());
+    } catch (Exception ex) {
+        // log and default to 0 if something goes wrong
+        ex.printStackTrace();
+    }
+    userInfo.setItemsPosted(postedCount);
+    userInfo.setItemsReturned(returnedCount);
+
         }
         dto.setUser(userInfo);
         return dto;
