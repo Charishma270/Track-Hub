@@ -66,8 +66,8 @@ function renderItems() {
                         <small style="color: #9ca3af;">by User #${item.userId}</small>
                     </div>
                     <div class="item-actions">
-                        <button class="btn btn-secondary btn-small" onclick="contactPoster(${item.id})">💬 Contact</button>
-                        <button class="btn btn-primary btn-small" onclick="viewDetails(${item.id})">👁️ Details</button>
+                        <button class="btn btn-secondary btn-small" onclick="window.location.href='Item.html'">💬 Contact</button>
+                        <button class="btn btn-primary btn-small" onclick="window.location.href='Item.html'">👁️ Details</button>
                     </div>
                 </div>
             </div>

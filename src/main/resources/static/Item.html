@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Item Details - Lost & Found Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="Item.css">
+    
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-icon">🔍</span>
+                <span class="logo-text">Lost & Found Portal</span>
+            </div>
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link">Home</a>
+                <a href="profile.html" class="nav-link">Profile</a>
+                <a href="MyPosts.html" class="nav-link">My Posts</a>
+            </div>
+            <div class="nav-actions">
+                <a href="upload.html" class="btn btn-primary">📸 Upload Item</a>
+                <a href="#" class="btn btn-outline">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Back Button -->
+            <div class="back-button">
+                <a href="dashboard.html" class="back-btn">
+                    <span>←</span>
+                    Back to Dashboard
+                </a>
+            </div>
+
+            <!-- Item Details -->
+            <div class="item-details">
+                <!-- Item Image Section -->
+                <div class="item-image-section">
+                    <img src="https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&fit=crop" 
+                         alt="iPhone 13 Pro" class="item-image" id="mainImage">
+                    
+                    <div class="image-gallery">
+                        <img src="https://images.pexels.com/photos/788946/pexels-photo-788946.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" 
+                             alt="iPhone front" class="thumbnail active" onclick="changeImage(this)">
+                        <img src="https://images.pexels.com/photos/1275229/pexels-photo-1275229.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" 
+                             alt="iPhone back" class="thumbnail" onclick="changeImage(this)">
+                        <img src="https://images.pexels.com/photos/1092644/pexels-photo-1092644.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop" 
+                             alt="iPhone case" class="thumbnail" onclick="changeImage(this)">
+                    </div>
+                </div>
+
+                <!-- Item Information Section -->
+                <div class="item-info-section">
+                    <span class="item-status status-found">✅ Found Item</span>
+                    
+                    <h1 class="item-title">iPhone 13 Pro</h1>
+                    
+                    <div class="item-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            <span>Main Library Entrance</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">📅</span>
+                            <span>Posted 2 hours ago</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">📱</span>
+                            <span>Electronics</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon">👁️</span>
+                            <span>23 views</span>
+                        </div>
+                    </div>
+                    
+                    <div class="item-description">
+                        <p>Black iPhone 13 Pro found near the main library entrance around 2 PM today. The phone has a blue protective case with the initials 'JS' written on the back in silver marker. There's a small crack on the screen protector in the top right corner, but the actual screen appears to be undamaged.</p>
+                        
+                        <p>The phone was found on the bench near the library's main entrance, close to the bike racks. It appears to have been there for a while as it was partially covered by some fallen leaves. The battery was completely drained when I found it.</p>
+                        
+                        <p>If this is your phone, please be prepared to provide additional details about the phone's contents, wallpaper, or any distinctive features to verify ownership.</p>
+                    </div>
+                    
+                    <div class="item-details-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">Condition</div>
+                            <div class="detail-value">Good (Minor screen protector crack)</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Color</div>
+                            <div class="detail-value">Black with Blue Case</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Brand</div>
+                            <div class="detail-value">Apple iPhone 13 Pro</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Distinctive Features</div>
+                            <div class="detail-value">Initials 'JS' on case</div>
+                        </div>
+                    </div>
+                    
+                    <div class="contact-actions">
+                        <button class="btn btn-primary btn-large" onclick="openContactModal()">
+                            💬 Contact Finder
+                        </button>
+                        <button class="btn btn-success btn-large" onclick="claimItem()">
+                            ✋ This is Mine
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Poster Information -->
+            <div class="poster-section">
+                <h2 class="section-title">
+                    <span>👤</span>
+                    Posted By
+                </h2>
+                
+                <div class="poster-info">
+                    <div class="poster-avatar">SJ</div>
+                    <div class="poster-details">
+                        <h3>Sarah Johnson</h3>
+                        <p>📧 sarah.johnson@university.edu</p>
+                        <p>🎓 Computer Science Student</p>
+                        <p>📅 Member since January 2024</p>
+                    </div>
+                </div>
+                
+                <div class="poster-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">15</span>
+                        <span class="stat-label">Items Posted</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">12</span>
+                        <span class="stat-label">Items Returned</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">4.9</span>
+                        <span class="stat-label">Rating</span>
+                    </div>
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn btn-secondary" onclick="viewPosterProfile()">
+                        👤 View Profile
+                    </button>
+                </div>
+            </div>
+
+            <!-- Location Information -->
+            <div class="location-section">
+                <h2 class="section-title">
+                    <span>📍</span>
+                    Location Details
+                </h2>
+                
+                <div class="location-info">
+                    <div class="location-icon">📍</div>
+                    <div class="location-details">
+                        <h3>Main Library Entrance</h3>
+                        <p>Found near the bench by the bike racks, approximately 50 meters from the main entrance doors. The area is well-lit and frequently used by students.</p>
+                    </div>
+                </div>
+                
+                <div class="map-placeholder">
+                    🗺️ Interactive map would be displayed here showing the exact location where the item was found
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Contact Modal -->
+    <div class="modal" id="contactModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Contact Sarah Johnson</h3>
+                <button class="close-btn" onclick="closeContactModal()">&times;</button>
+            </div>
+            
+            <form class="contact-form" id="contactForm">
+                <div class="form-group">
+                    <label for="senderName">Your Name</label>
+                    <input type="text" id="senderName" name="senderName" required placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-group">
+                    <label for="senderEmail">Your Email</label>
+                    <input type="email" id="senderEmail" name="senderEmail" required placeholder="your.email@university.edu">
+                </div>
+                
+                <div class="form-group">
+                    <label for="senderPhone">Your Phone Number</label>
+                    <input type="tel" id="senderPhone" name="senderPhone" placeholder="+1 (555) 123-4567">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" required placeholder="Please provide details about why you believe this is your item, including any identifying features, when you lost it, etc."></textarea>
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeContactModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+   <script src="Item.js"></script>
+</body>
+</html>
