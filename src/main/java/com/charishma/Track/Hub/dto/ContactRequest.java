@@ -1,12 +1,16 @@
 package com.charishma.Track.Hub.dto;
 
 public class ContactRequest {
+    private Long senderUserId; // optional
     private String senderName;
     private String senderEmail;
     private String senderPhone;
     private String message;
+    
+    // getters/setters
+    public Long getSenderUserId() { return senderUserId; }
+    public void setSenderUserId(Long senderUserId) { this.senderUserId = senderUserId; }
 
-    // getters & setters
     public String getSenderName() { return senderName; }
     public void setSenderName(String senderName) { this.senderName = senderName; }
 
