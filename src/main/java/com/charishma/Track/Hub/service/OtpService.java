@@ -9,7 +9,6 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.charishma.Track.Hub.repo.UserRepository;
-import com.charishma.Track.Hub.service.EmailService;
 import com.charishma.Track.Hub.model.User;
 
 
@@ -23,7 +22,6 @@ import java.util.UUID;
 public class OtpService {
 
     private final OtpRepository otpRepository;
-    private final SmsService smsService;
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(OtpService.class);
@@ -37,7 +35,6 @@ public class OtpService {
                   UserRepository userRepository,
                   EmailService emailService) {
     this.otpRepository = otpRepository;
-    this.smsService = smsService;
     this.userRepository = userRepository;
     this.emailService = emailService;
 }
