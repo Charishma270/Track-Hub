@@ -1,86 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Lost & Found Portal</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - Track Hub</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <a href="index.html">
-                    <span class="logo-icon">🔍</span>
-                    <span class="logo-text">Lost & Found Portal</span>
-                </a>
-            </div>
-            <div class="nav-buttons">
-                <a href="login.html" class="btn btn-outline">Already have an account?</a>
-            </div>
-        </div>
-    </nav>
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <a href="index.html">
+          <span class="logo-icon">🔍</span>
+          <span class="logo-text">Track Hub</span>
+        </a>
+      </div>
+      <div class="nav-buttons">
+        <a href="login.html" class="btn btn-outline">Already have an account?</a>
+      </div>
+    </div>
+  </nav>
 
-    <!-- Registration Form -->
-    <section class="auth-section">
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-header">
-                    <h1>Join Our Community</h1>
-                    <p>Create your account to start helping others find their lost items</p>
-                </div>
-                
-                <form class="auth-form" id="registerForm">
-                    <div class="form-group">
-                        <label for="firstName">First Name</label>
-                        <input type="text" id="firstName" name="firstName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="lastName">Last Name</label>
-                        <input type="text" id="lastName" name="lastName" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" required>
-                        <small>Use your student email for verification</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" name="phone" required>
-                        <small>For contact when items are found</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
-                        <small>At least 8 characters with numbers and letters</small>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="confirmPassword">Confirm Password</label>
-                        <input type="password" id="confirmPassword" name="confirmPassword" required>
-                    </div>
-                    
-                    <div class="form-checkbox">
-                        <input type="checkbox" id="terms" name="terms" required>
-                        <label for="terms">I agree to the Terms of Service and Privacy Policy</label>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary btn-full">Create Account</button>
-                </form>
-                
-                <div class="auth-footer">
-                    <p>Already have an account? <a href="login.html">Sign in here</a></p>
-                </div>
-            </div>
+  <!-- Registration Form -->
+  <section class="auth-section">
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h1>Create Your Account</h1>
+          <p>Join Track Hub and help others recover lost items</p>
         </div>
-    </section>
 
-    <script src="Register.js"></script>
+        <form class="auth-form" id="registerForm">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName">
+          </div>
+
+          <div class="form-group">
+            <label for="email">College Email Address</label>
+            <input type="email" id="email" name="email" required>
+            <small>Use your official SRKREC email (e.g., name@srkrec.ac.in)</small>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" name="phone" maxlength="10" required>
+            <small>Used for OTP verification and contact</small>
+          </div>
+
+          <div class="form-group otp-group">
+            <button type="button" id="sendOtpBtn" class="btn btn-outline">Send OTP</button>
+
+            <div id="otpSection" style="display:none; margin-top: 10px;">
+              <input type="text" id="otpInput" placeholder="Enter OTP" maxlength="6" />
+              <button type="button" id="verifyOtpBtn" class="btn btn-secondary">Verify OTP</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+          </div>
+
+          <div class="form-checkbox">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">I agree to the Terms and Privacy Policy</label>
+          </div>
+
+          <button type="submit" id="registerBtn" class="btn btn-primary btn-full" disabled>Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already registered? <a href="login.html">Login here</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="register.js"></script>
 </body>
 </html>

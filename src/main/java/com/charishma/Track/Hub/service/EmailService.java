@@ -18,11 +18,16 @@ public class EmailService {
 
     @Async
     public void send(SimpleMailMessage mail) {
-        try {
-            mailSender.send(mail);
-            log.info("Email sent/queued to {}", (mail.getTo() != null && mail.getTo().length > 0) ? mail.getTo()[0] : "unknown");
-        } catch (Exception ex) {
-            log.error("Failed to send email", ex);
-        }
+    try {
+        log.info("📨 Sending email to: {}", (mail.getTo() != null ? mail.getTo()[0] : "unknown"));
+        log.info("Subject: {}", mail.getSubject());
+        log.info("Body: {}", mail.getText());
+        mailSender.send(mail);
+        log.info("✅ Email successfully sent to {}", (mail.getTo() != null && mail.getTo().length > 0) ? mail.getTo()[0] : "unknown");
+    } catch (Exception ex) {
+        log.error("❌ Failed to send email", ex);
     }
+    
+}
+
 }

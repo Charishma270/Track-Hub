@@ -1,14 +1,13 @@
 package com.charishma.Track.Hub.controller;
 
-import com.charishma.Track.Hub.dto.ContactRequest;
-import com.charishma.Track.Hub.dto.PostDetailResponse;
-import com.charishma.Track.Hub.dto.PostRequest;
-import com.charishma.Track.Hub.dto.PostResponse;
+import com.charishma.Track.Hub.dto.*;
+import com.charishma.Track.Hub.model.Claim;
+import com.charishma.Track.Hub.service.OtpService;
 import com.charishma.Track.Hub.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.charishma.Track.Hub.dto.ClaimRequest;
-import com.charishma.Track.Hub.model.Claim;
+import com.charishma.Track.Hub.dto.ContactVerifyRequest;
+
 
 import java.util.List;
 
@@ -17,14 +16,16 @@ import java.util.List;
 public class PostController {
 
     private final PostService postService;
+    private final OtpService otpService;
 
     // Constructor injection
-    public PostController(PostService postService) {
+    public PostController(PostService postService, OtpService otpService) {
         this.postService = postService;
+        this.otpService = otpService;
     }
 
     // -------------------------
-    // Create
+    // Create a new post
     // -------------------------
     @PostMapping("/create")
     public ResponseEntity<?> createPost(@RequestBody PostRequest req) {
@@ -40,7 +41,7 @@ public class PostController {
     }
 
     // -------------------------
-    // Read (by user)
+    // Get posts by a specific user
     // -------------------------
     @GetMapping("/user/{userId}")
     public ResponseEntity<?> getUserPosts(@PathVariable Long userId) {
@@ -56,12 +57,13 @@ public class PostController {
     }
 
     // -------------------------
-    // Read (all)
+    // Get all posts (newest first)
     // -------------------------
     @GetMapping("/all")
     public ResponseEntity<?> getAllPosts() {
         try {
-            List<PostResponse> posts = postService.getAllPosts();
+            // ✅ Now retrieves posts in DESCENDING order (freshest first)
+            List<PostResponse> posts = postService.getAllPostsSortedByDateDesc();
             return ResponseEntity.ok(posts);
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,7 +72,7 @@ public class PostController {
     }
 
     // -------------------------
-    // Read (single detail)
+    // Get post details by ID
     // -------------------------
     @GetMapping("/{id}")
     public ResponseEntity<?> getPostById(@PathVariable Long id) {
@@ -87,7 +89,7 @@ public class PostController {
     }
 
     // -------------------------
-    // Update
+    // Update a post
     // -------------------------
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostRequest req) {
@@ -103,7 +105,7 @@ public class PostController {
     }
 
     // -------------------------
-    // Delete
+    // Delete a post
     // -------------------------
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePost(@PathVariable Long id) {
@@ -119,40 +121,66 @@ public class PostController {
     }
 
     // -------------------------
-    // Contact poster (save message + email)
+    // Step 1: Initiate Contact (Generate OTP)
     // -------------------------
-    @PostMapping("/{id}/contact")
-    public ResponseEntity<?> contactPoster(@PathVariable Long id, @RequestBody ContactRequest req) {
+    @PostMapping("/{id}/contact/initiate")
+    public ResponseEntity<?> initiateContact(@PathVariable Long id, @RequestBody ContactRequest req) {
         try {
-            boolean ok = postService.contactPoster(id, req);
-            if (ok) {
-                return ResponseEntity.ok("Message sent (or queued).");
+            boolean postExists = postService.existsById(id);
+            if (!postExists) {
+                return ResponseEntity.status(404).body("Post not found");
+            }
+
+            // Generate OTP for contact verification
+            String otp = otpService.createOtpForPhone(req.getSenderPhone(), "CONTACT");
+
+            // Send OTP via SMS or fallback email
+            otpService.sendOtp(req.getSenderPhone(), otp);
+
+            return ResponseEntity.ok("OTP sent to your registered phone number.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error initiating contact: " + e.getMessage());
+        }
+    }
+
+    // -------------------------
+    // Step 2: Verify OTP and Send Contact Email
+    // -------------------------
+    @PostMapping("/{id}/contact/verify")
+    public ResponseEntity<?> verifyContactOtp(@PathVariable Long id, @RequestBody ContactVerifyRequest req) {
+        try {
+            boolean valid = otpService.verifyOtp(req.getSenderPhone(), req.getOtp(), "CONTACT");
+            if (!valid) {
+                return ResponseEntity.badRequest().body("Invalid or expired OTP.");
+            }
+
+            boolean sent = postService.contactPoster(id, req);
+            if (sent) {
+                return ResponseEntity.ok("Message sent successfully to post owner.");
             } else {
                 return ResponseEntity.status(404).body("Post not found.");
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error verifying OTP: " + e.getMessage());
+        }
+    }
+
+    // -------------------------
+    // Submit claim for a found item
+    // -------------------------
+    @PostMapping("/{id}/claim")
+    public ResponseEntity<?> submitClaim(@PathVariable Long id, @RequestBody ClaimRequest req) {
+        try {
+            Claim claim = postService.createClaim(id, req);
+            return ResponseEntity.ok(claim);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid request: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body("Error sending message: " + e.getMessage());
+            return ResponseEntity.status(500).body("Error creating claim: " + e.getMessage());
         }
     }
-    // -------------------------
-    // Submit claim for found item
-    // -------------------------
-
-@PostMapping("/{id}/claim")
-public ResponseEntity<?> submitClaim(@PathVariable Long id, @RequestBody ClaimRequest req) {
-    try {
-        Claim claim = postService.createClaim(id, req);
-        return ResponseEntity.ok(claim); // or a simpler message
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body("Invalid request: " + e.getMessage());
-    } catch (Exception e) {
-        e.printStackTrace();
-        return ResponseEntity.status(500).body("Error creating claim: " + e.getMessage());
-    }
-}
-
-
 }

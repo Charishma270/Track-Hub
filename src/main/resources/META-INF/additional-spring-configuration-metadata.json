@@ -1,0 +1,19 @@
+{
+  "properties": [
+    {
+      "name": "msg91.authkey",
+      "type": "java.lang.String",
+      "description": "AuthKey for MSG91 API"
+    },
+    {
+      "name": "msg91.senderid",
+      "type": "java.lang.String",
+      "description": "Sender ID for MSG91"
+    },
+    {
+      "name": "msg91.templateid",
+      "type": "java.lang.String",
+      "description": "Template ID for OTP messages"
+    }
+  ]
+}

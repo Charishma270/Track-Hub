@@ -1,19 +1,8 @@
 package com.charishma.Track.Hub.service;
 
-import com.charishma.Track.Hub.dto.ClaimRequest;
-import com.charishma.Track.Hub.dto.ContactRequest;
-import com.charishma.Track.Hub.dto.PostDetailResponse;
-import com.charishma.Track.Hub.dto.PostRequest;
-import com.charishma.Track.Hub.dto.PostResponse;
-import com.charishma.Track.Hub.model.Claim;
-import com.charishma.Track.Hub.model.Message;
-import com.charishma.Track.Hub.model.Post;
-import com.charishma.Track.Hub.model.User;
-import com.charishma.Track.Hub.repo.ClaimRepository;
-import com.charishma.Track.Hub.repo.MessageRepository;
-import com.charishma.Track.Hub.repo.PostRepository;
-import com.charishma.Track.Hub.repo.UserRepository;
-
+import com.charishma.Track.Hub.dto.*;
+import com.charishma.Track.Hub.model.*;
+import com.charishma.Track.Hub.repo.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
@@ -23,15 +12,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
- * Service responsible for post-related business logic including:
- * - creating/updating/deleting posts
- * - returning detailed post DTOs for Item.html
- * - saving contact messages and sending email notifications
- * - creating claims and notifying poster
- *
- * Uses EmailService for async email sending.
+ * Handles all post-related logic:
+ * - Create, update, delete posts
+ * - View details
+ * - Contact poster (with OTP verification)
+ * - Create claim and email notifications
  */
 @Service
 @Transactional
@@ -43,7 +31,7 @@ public class PostService {
     private final UserRepository userRepository;
     private final MessageRepository messageRepository;
     private final ClaimRepository claimRepository;
-    private final EmailService emailService; // async email sender
+    private final EmailService emailService;
 
     public PostService(PostRepository postRepository,
                        UserRepository userRepository,
@@ -57,17 +45,16 @@ public class PostService {
         this.emailService = emailService;
     }
 
-    /* -------------------------
+    /* ---------------------------------------------------------
        Helpers
-       ------------------------- */
+     --------------------------------------------------------- */
     private PostResponse toResponse(Post post) {
         return new PostResponse(post);
     }
 
-    /* -------------------------
-       CRUD
-       ------------------------- */
-
+    /* ---------------------------------------------------------
+       Create post
+     --------------------------------------------------------- */
     public PostResponse createPost(PostRequest req) {
         User user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + req.getUserId()));
@@ -80,7 +67,7 @@ public class PostService {
         post.setCategory(req.getCategory());
         post.setAdditionalNotes(req.getAdditionalNotes());
 
-        // decode base64 image if provided
+        // Decode Base64 image if provided
         if (req.getPhotoUrl() != null && !req.getPhotoUrl().isBlank()) {
             try {
                 String base64 = req.getPhotoUrl().replaceFirst("^data:image/[^;]+;base64,", "");
@@ -90,28 +77,43 @@ public class PostService {
             }
         }
 
-        if (req.getStatus() != null) {
-            post.setStatus(Post.Status.valueOf(req.getStatus().toUpperCase()));
-        }
-        if (req.getContactPublic() != null) {
+        if (req.getStatus() != null) post.setStatus(Post.Status.valueOf(req.getStatus().toUpperCase()));
+        if (req.getContactPublic() != null)
             post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toUpperCase()));
-        }
 
         Post saved = postRepository.save(post);
         LOG.info("Created post id={} by userId={}", saved.getId(), user.getId());
         return toResponse(saved);
     }
 
+    /* ---------------------------------------------------------
+       Fetch posts
+     --------------------------------------------------------- */
     public List<PostResponse> getUserPosts(Long userId) {
         userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
         return postRepository.findByUserId(userId).stream().map(this::toResponse).toList();
     }
 
+    // ✅ NEW: Fetch all posts newest first
+    public List<PostResponse> getAllPostsSortedByDateDesc() {
+        return postRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public List<PostResponse> getAllPosts() {
         return postRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    public boolean existsById(Long id) {
+        return postRepository.existsById(id);
+    }
+
+    /* ---------------------------------------------------------
+       Delete & Update
+     --------------------------------------------------------- */
     public void deletePost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
@@ -138,17 +140,19 @@ public class PostService {
             }
         }
 
-        if (req.getStatus() != null) post.setStatus(Post.Status.valueOf(req.getStatus().toUpperCase()));
-        if (req.getContactPublic() != null) post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toUpperCase()));
+        if (req.getStatus() != null)
+            post.setStatus(Post.Status.valueOf(req.getStatus().toUpperCase()));
+        if (req.getContactPublic() != null)
+            post.setContactPublic(Post.ContactMethod.valueOf(req.getContactPublic().toUpperCase()));
 
         Post saved = postRepository.save(post);
         LOG.info("Updated post id={}", saved.getId());
         return new PostResponse(saved);
     }
 
-    /* -------------------------
-       Post details for item page
-       ------------------------- */
+    /* ---------------------------------------------------------
+       Get post detail
+     --------------------------------------------------------- */
     public PostDetailResponse getPostDetail(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + id));
@@ -170,7 +174,6 @@ public class PostService {
             dto.setPhotoBase64(Base64.getEncoder().encodeToString(post.getPhotoUrl()));
         }
 
-        // user info + stats
         User u = post.getUser();
         if (u != null) {
             PostDetailResponse.UserInfo userInfo = new PostDetailResponse.UserInfo();
@@ -194,14 +197,13 @@ public class PostService {
 
             dto.setUser(userInfo);
         }
-
         return dto;
     }
 
-    /* -------------------------
-       Contact poster (save message + notify)
-       ------------------------- */
-    public boolean contactPoster(Long postId, ContactRequest req) {
+    /* ---------------------------------------------------------
+       Contact Poster (with OTP verified)
+     --------------------------------------------------------- */
+    public boolean contactPoster(Long postId, ContactVerifyRequest req) {
         Optional<Post> opt = postRepository.findById(postId);
         if (opt.isEmpty()) {
             LOG.warn("contactPoster: post not found id={}", postId);
@@ -209,21 +211,21 @@ public class PostService {
         }
         Post post = opt.get();
 
-        // Save message record
+        // Save the message
         try {
             Message msg = new Message();
             msg.setPost(post);
             msg.setSenderName(req.getSenderName());
             msg.setSenderEmail(req.getSenderEmail());
             msg.setSenderPhone(req.getSenderPhone());
-            msg.setMessageText(req.getMessage());
+            msg.setMessageText(req.getMessageText());
             messageRepository.save(msg);
             LOG.info("Saved message id={} for postId={}", msg.getId(), postId);
         } catch (Exception ex) {
             LOG.error("Failed to save message for postId={}", postId, ex);
         }
 
-        // Notify poster by email if allowed
+        // Email the post owner
         boolean emailAllowed = post.getContactPublic() == null
                 || post.getContactPublic().name().equalsIgnoreCase("EMAIL")
                 || post.getContactPublic().name().equalsIgnoreCase("BOTH");
@@ -231,37 +233,37 @@ public class PostService {
         if (emailAllowed && post.getUser() != null && post.getUser().getEmail() != null) {
             try {
                 SimpleMailMessage mail = new SimpleMailMessage();
+                LOG.info("📧 Attempting to email post owner: {}", 
+          (post.getUser() != null ? post.getUser().getEmail() : "NO USER EMAIL FOUND"));
+
                 mail.setTo(post.getUser().getEmail());
                 mail.setSubject("TrackHub: Message about your item \"" + post.getTitle() + "\"");
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("Hi ").append(post.getUser().getFirstName() == null ? "" : post.getUser().getFirstName()).append(",\n\n");
-                sb.append("You have a new message regarding your post: ").append(post.getTitle()).append("\n\n");
+                sb.append("You have a new verified message regarding your post: ").append(post.getTitle()).append("\n\n");
                 sb.append("Sender: ").append(req.getSenderName()).append("\n");
                 sb.append("Email: ").append(req.getSenderEmail()).append("\n");
                 if (req.getSenderPhone() != null && !req.getSenderPhone().isBlank()) {
                     sb.append("Phone: ").append(req.getSenderPhone()).append("\n");
                 }
-                sb.append("\nMessage:\n").append(req.getMessage()).append("\n\n--\nTrackHub");
+                sb.append("\nMessage:\n").append(req.getMessageText()).append("\n\n--\nTrackHub");
 
                 mail.setText(sb.toString());
-
-                // async send via EmailService
                 emailService.send(mail);
-                LOG.info("Queued email to notify poster about postId={}", postId);
+                LOG.info("Queued verified email to poster for postId={}", postId);
             } catch (Exception ex) {
-                LOG.error("Failed to queue email to poster for postId={}", postId, ex);
+                LOG.error("Failed to queue verified email to poster for postId={}", postId, ex);
             }
         } else {
             LOG.info("Email not allowed or poster has no email for postId={}", postId);
         }
-
         return true;
     }
 
-    /* -------------------------
+    /* ---------------------------------------------------------
        Claim creation (save + notify)
-       ------------------------- */
+     --------------------------------------------------------- */
     public Claim createClaim(Long postId, ClaimRequest req) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found with ID: " + postId));
@@ -276,7 +278,7 @@ public class PostService {
         Claim saved = claimRepository.save(claim);
         LOG.info("Saved claim id={} for postId={}", saved.getId(), postId);
 
-        // notify poster if allowed
+        // notify poster
         boolean emailAllowed = post.getContactPublic() == null
                 || post.getContactPublic().name().equalsIgnoreCase("EMAIL")
                 || post.getContactPublic().name().equalsIgnoreCase("BOTH");
@@ -306,10 +308,7 @@ public class PostService {
             } catch (Exception ex) {
                 LOG.error("Failed to queue claim notification email for postId={}", postId, ex);
             }
-        } else {
-            LOG.info("Email not allowed or poster has no email for postId={}", postId);
         }
-
         return saved;
     }
 }

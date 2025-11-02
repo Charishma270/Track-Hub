@@ -22,10 +22,11 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // ✅ Register a new user
     public UserResponse register(RegistrationRequest req) {
         Optional<User> existing = userRepository.findByEmail(req.getEmail());
         if (existing.isPresent()) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new IllegalArgumentException("Email already in use.");
         }
 
         User u = new User();
@@ -34,29 +35,43 @@ public class UserService {
         u.setEmail(req.getEmail());
         u.setPhone(req.getPhone());
         u.setPasswordHash(passwordEncoder.encode(req.getPassword()));
-        u.setIsVerified(false);
+        u.setIsVerified(true); // ✅ Assume verified after OTP
         u.setRole("USER");
 
         User saved = userRepository.save(u);
         return toResponse(saved);
     }
 
+    // ✅ Login verification
     public UserResponse login(String email, String password) {
         User u = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
+                .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
 
         if (!passwordEncoder.matches(password, u.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+            throw new IllegalArgumentException("Invalid email or password.");
         }
 
         return toResponse(u);
     }
 
-    // ===== New method to fetch profile =====
+    // ✅ Get profile details
     public UserResponse getProfileByEmail(String email) {
         User u = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("User not found."));
         return toResponse(u);
+    }
+
+    // ✅ Get phone for a given email (used for OTP sending)
+    public String getPhoneByEmail(String email) {
+    return userRepository.findByEmailIgnoreCase(email)
+            .map(User::getPhone)
+            .orElse(null);
+}
+
+
+    // ✅ Helper method to return entity from email
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
 
     private UserResponse toResponse(User u) {

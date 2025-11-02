@@ -17,6 +17,9 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // ✅ Search by keyword in title/description
     List<Post> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String titleKeyword, String descriptionKeyword);
+    
+    // ✅ Get posts sorted by creation date (newest first) 
+    List<Post> findAllByOrderByCreatedAtDesc();
 
     // ✅ Get posts by location (e.g., "Library")
     List<Post> findByLocationContainingIgnoreCase(String location);

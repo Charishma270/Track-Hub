@@ -9,4 +9,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // ✅ Optional: Fetch profile by ID
     Optional<User> findById(Long id);
+    Optional<User> findByEmailIgnoreCase(String email);
+     Optional<User> findByPhone(String phone);
 }
+

@@ -47,6 +47,12 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    
+    @Column(name = "phone_verified", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean phoneVerified;
+
+    @Column(name = "email_verified", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean emailVerified;
 
     // Getters & Setters
     public Long getId() { return id; }
