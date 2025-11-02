@@ -57,14 +57,19 @@ async function fetchUserPosts(userId) {
     try {
         const res = await fetch(`http://localhost:8080/api/posts/user/${userId}`);
         if (!res.ok) throw new Error('Failed to fetch user posts');
-        const posts = await res.json();
+        const result = await res.json().catch(() => null);
+if (!result) throw new Error("Invalid server response");
 
-        // Items Posted = all posts
-        document.getElementById('itemsPosted').textContent = posts.length;
+// ✅ Extract posts array safely
+const posts = Array.isArray(result.data) ? result.data : result;
 
-        // Items Found = posts with status "FOUND"
-        const foundCount = posts.filter(p => p.status === "FOUND").length;
-        document.getElementById('itemsFound').textContent = foundCount;
+// Items Posted = all posts
+document.getElementById('itemsPosted').textContent = posts.length;
+
+// Items Found = posts with status "FOUND"
+const foundCount = posts.filter(p => (p.status || "").toUpperCase() === "FOUND").length;
+document.getElementById('itemsFound').textContent = foundCount;
+
 
     } catch (err) {
         console.error("Error fetching user posts:", err);

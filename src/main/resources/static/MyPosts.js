@@ -47,18 +47,26 @@ async function fetchProfile(email) {
 }
 
 // Fetch posts for user
+// Fetch posts for user
 async function fetchUserPosts() {
     if (!currentUser || !currentUser.id) throw new Error("User id missing");
+
     const postsRes = await fetch(`http://localhost:8080/api/posts/user/${currentUser.id}`);
     if (!postsRes.ok) {
         const txt = await postsRes.text();
         throw new Error("Failed to fetch posts: " + txt);
     }
-    userPosts = await postsRes.json();
-    // ensure array
-    if (!Array.isArray(userPosts)) userPosts = [];
+
+    const result = await postsRes.json().catch(() => null);
+    if (!result) throw new Error("Invalid JSON response from backend");
+
+    // ✅ Extract array correctly whether wrapped or not
+    const posts = Array.isArray(result.data) ? result.data : result;
+
+    userPosts = posts;
     filteredPosts = [...userPosts];
 }
+
 
 // Render posts
 function renderPosts() {

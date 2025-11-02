@@ -37,19 +37,28 @@ async function fetchItems() {
         }
 
         const data = await response.json();
-        if (!Array.isArray(data)) {
-            console.warn('Expected array from /all, got:', data);
+        console.log("📦 Raw /all response:", data);
+
+        // ✅ FIXED: Support both [array] and { status, data: [...] } formats
+        let postsArray = [];
+        if (Array.isArray(data)) {
+            postsArray = data;
+        } else if (data && Array.isArray(data.data)) {
+            postsArray = data.data;
+        } else {
+            console.warn('Unexpected server response format:', data);
             showEmptyState('Unexpected server response. See console for details.');
             items = [];
             filteredItems = [];
             return;
         }
 
-        items = data;
+        items = postsArray;
         filteredItems = [...items];
-        console.log('Loaded posts:', items.length);
+        console.log('✅ Loaded posts:', items.length);
+
     } catch (err) {
-        console.error('Network or runtime error fetching posts:', err);
+        console.error('❌ Network or runtime error fetching posts:', err);
         showEmptyState('Network error: could not fetch items. Check backend and CORS. See console for details.');
         items = [];
         filteredItems = [];
@@ -95,15 +104,17 @@ function renderItems() {
         // If no id, buttons should not navigate (and show disabled UI)
         const detailsUrl = hasId ? `Item.html?id=${encodeURIComponent(id)}` : '#';
 
-        // disable class for missing id
         const disabledAttr = hasId ? '' : 'disabled';
         const disabledStyle = hasId ? '' : 'opacity:0.6;cursor:not-allowed';
 
         return `
             <div class="item-card" data-category="${escapeHtml(item.category || '')}" data-status="${status}">
-                <img src="${imageSrc}" alt="${titleEsc}" class="item-image" loading="lazy" onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'void(0)'}" style="cursor:${hasId ? 'pointer' : 'default'}">
+                <img src="${imageSrc}" alt="${titleEsc}" class="item-image" loading="lazy"
+                     onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'void(0)'}"
+                     style="cursor:${hasId ? 'pointer' : 'default'}">
                 <div class="item-content">
-                    <h3 class="item-title" style="cursor:${hasId ? 'pointer' : 'default'}" onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'void(0)'}">${titleEsc}</h3>
+                    <h3 class="item-title" style="cursor:${hasId ? 'pointer' : 'default'}"
+                        onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'void(0)'}">${titleEsc}</h3>
                     <p class="item-description">${descEsc}</p>
                     <div class="item-meta">
                         <span class="item-location">📍 ${locationEsc}</span>
@@ -115,8 +126,10 @@ function renderItems() {
                         <small style="color: #9ca3af;">by User #${escapeHtml(userId)}</small>
                     </div>
                     <div class="item-actions">
-                        <button class="btn btn-secondary btn-small" style="${disabledStyle}" ${disabledAttr} onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'alert(\"Item id missing — cannot open details\")'}">💬 Contact</button>
-                        <button class="btn btn-primary btn-small" style="${disabledStyle}" ${disabledAttr} onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'alert(\"Item id missing — cannot open details\")'}">👁️ Details</button>
+                        <button class="btn btn-secondary btn-small" style="${disabledStyle}" ${disabledAttr}
+                            onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'alert(\"Item id missing — cannot open details\")'}">💬 Contact</button>
+                        <button class="btn btn-primary btn-small" style="${disabledStyle}" ${disabledAttr}
+                            onclick="${hasId ? `window.location.href='${detailsUrl}'` : 'alert(\"Item id missing — cannot open details\")'}">👁️ Details</button>
                     </div>
                 </div>
             </div>
@@ -138,8 +151,10 @@ function escapeHtml(str) {
 function filterItems(filter) {
     currentFilter = filter;
     if (filter === 'all') filteredItems = [...items];
-    else if (filter === 'lost' || filter === 'found') filteredItems = items.filter(item => item.status && item.status.toLowerCase() === filter);
-    else filteredItems = items.filter(item => item.category && item.category.toLowerCase() === filter);
+    else if (filter === 'lost' || filter === 'found')
+        filteredItems = items.filter(item => item.status && item.status.toLowerCase() === filter);
+    else
+        filteredItems = items.filter(item => item.category && item.category.toLowerCase() === filter);
     renderItems();
 }
 

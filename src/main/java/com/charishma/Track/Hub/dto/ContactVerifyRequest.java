@@ -4,7 +4,7 @@ public class ContactVerifyRequest {
     private String senderName;
     private String senderEmail;
     private String senderPhone;
-    private String messageText;
+    private String message; // ✅ renamed from messageText
     private String otp;
 
     public String getSenderName() { return senderName; }
@@ -16,8 +16,8 @@ public class ContactVerifyRequest {
     public String getSenderPhone() { return senderPhone; }
     public void setSenderPhone(String senderPhone) { this.senderPhone = senderPhone; }
 
-    public String getMessageText() { return messageText; }
-    public void setMessageText(String messageText) { this.messageText = messageText; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
 
     public String getOtp() { return otp; }
     public void setOtp(String otp) { this.otp = otp; }

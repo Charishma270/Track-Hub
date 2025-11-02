@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Base64;
 import java.util.List;
@@ -22,7 +21,6 @@ import java.util.stream.Collectors;
  * - Create claim and email notifications
  */
 @Service
-@Transactional
 public class PostService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PostService.class);
@@ -95,7 +93,7 @@ public class PostService {
         return postRepository.findByUserId(userId).stream().map(this::toResponse).toList();
     }
 
-    // ✅ NEW: Fetch all posts newest first
+    // ✅ Fetch all posts newest first
     public List<PostResponse> getAllPostsSortedByDateDesc() {
         return postRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
@@ -211,14 +209,14 @@ public class PostService {
         }
         Post post = opt.get();
 
-        // Save the message
+        // Save message safely
         try {
             Message msg = new Message();
             msg.setPost(post);
             msg.setSenderName(req.getSenderName());
             msg.setSenderEmail(req.getSenderEmail());
             msg.setSenderPhone(req.getSenderPhone());
-            msg.setMessageText(req.getMessageText());
+            msg.setMessageText(req.getMessage()); // ✅ fixed mapping
             messageRepository.save(msg);
             LOG.info("Saved message id={} for postId={}", msg.getId(), postId);
         } catch (Exception ex) {
@@ -233,11 +231,15 @@ public class PostService {
         if (emailAllowed && post.getUser() != null && post.getUser().getEmail() != null) {
             try {
                 SimpleMailMessage mail = new SimpleMailMessage();
-                LOG.info("📧 Attempting to email post owner: {}", 
-          (post.getUser() != null ? post.getUser().getEmail() : "NO USER EMAIL FOUND"));
+                LOG.info("📧 Attempting to email post owner: {}",
+                        (post.getUser() != null ? post.getUser().getEmail() : "NO USER EMAIL FOUND"));
 
                 mail.setTo(post.getUser().getEmail());
                 mail.setSubject("TrackHub: Message about your item \"" + post.getTitle() + "\"");
+
+                // ✅ Prevent rollback when message is null
+                String messageContent = (req.getMessage() == null || req.getMessage().trim().isEmpty())
+                        ? "(no message provided)" : req.getMessage();
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("Hi ").append(post.getUser().getFirstName() == null ? "" : post.getUser().getFirstName()).append(",\n\n");
@@ -247,7 +249,7 @@ public class PostService {
                 if (req.getSenderPhone() != null && !req.getSenderPhone().isBlank()) {
                     sb.append("Phone: ").append(req.getSenderPhone()).append("\n");
                 }
-                sb.append("\nMessage:\n").append(req.getMessageText()).append("\n\n--\nTrackHub");
+                sb.append("\nMessage:\n").append(messageContent).append("\n\n--\nTrackHub");
 
                 mail.setText(sb.toString());
                 emailService.send(mail);

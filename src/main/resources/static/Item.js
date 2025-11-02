@@ -130,7 +130,16 @@ function loadItemDetails() {
                 showInlineItemError("Could not load item details (server error).");
                 return null;
             }
-            return res.json();
+
+            const result = await res.json().catch(() => null);
+            if (!result) {
+                showInlineItemError("Invalid server response.");
+                return null;
+            }
+
+            // ✅ Extract post correctly whether wrapped or not
+            const post = result.data ? result.data : result;
+            return post;
         })
         .then(post => {
             if (post) populateItemDetails(post);
@@ -140,6 +149,7 @@ function loadItemDetails() {
             showInlineItemError("Could not load item details (network error).");
         });
 }
+
 
 // -----------------------------------------------
 // Format "Member since"
@@ -286,7 +296,7 @@ function closeContactModal() {
     document.getElementById("contactForm")?.reset();
 }
 
-function handleContactSubmission(e) {
+async function handleContactSubmission(e) {
     e.preventDefault();
     const id = getPostIdFromUrl();
     if (!id) {
@@ -300,42 +310,64 @@ function handleContactSubmission(e) {
     const senderPhone = (form.senderPhone?.value || "").trim();
     const message = (form.message?.value || "").trim();
 
-    if (!senderName || !senderEmail || !message) {
+    if (!senderName || !senderEmail || !senderPhone || !message) {
         alert("Please fill all required fields.");
         return;
     }
 
-    const payload = { senderName, senderEmail, senderPhone, message };
-
     const submitBtn = form.querySelector("button[type='submit']");
     const originalText = submitBtn ? submitBtn.textContent : "Send";
     if (submitBtn) {
-        submitBtn.textContent = "Sending...";
+        submitBtn.textContent = "Sending OTP...";
         submitBtn.disabled = true;
     }
 
-    fetch(`${API_BASE}/${encodeURIComponent(id)}/contact`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-    })
-        .then(async res => {
-            const text = await res.text().catch(() => "");
-            if (!res.ok) throw new Error(text || "Failed to send");
-            alert(text || "Message sent successfully");
-            closeContactModal();
-        })
-        .catch(err => {
-            console.error("Failed to send contact message:", err);
-            alert("Failed to send message. Try again later.");
-        })
-        .finally(() => {
-            if (submitBtn) {
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            }
+    try {
+        // STEP 1️⃣: Initiate contact (send OTP)
+        const initRes = await fetch(`${API_BASE}/${encodeURIComponent(id)}/contact/initiate`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ senderName, senderEmail, senderPhone })
         });
+
+        const initText = await initRes.text().catch(() => "");
+        if (!initRes.ok) throw new Error(initText || "Failed to send OTP");
+
+        alert("OTP sent successfully to your phone. Please enter it to continue.");
+        const otp = prompt("Enter the OTP sent to your phone:");
+
+        if (!otp) {
+            alert("OTP is required to verify contact.");
+            return;
+        }
+
+        // STEP 2️⃣: Verify OTP and send message
+        if (submitBtn) {
+            submitBtn.textContent = "Verifying OTP...";
+        }
+
+        const verifyRes = await fetch(`${API_BASE}/${encodeURIComponent(id)}/contact/verify`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ senderName, senderEmail, senderPhone, otp, message })
+        });
+
+        const verifyText = await verifyRes.text().catch(() => "");
+        if (!verifyRes.ok) throw new Error(verifyText || "Failed to send message");
+
+        alert("✅ Message sent successfully to the post owner!");
+        closeContactModal();
+    } catch (err) {
+        console.error("Contact flow failed:", err);
+        alert("Failed to send message. " + (err.message || "Try again later."));
+    } finally {
+        if (submitBtn) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    }
 }
+
 
 // -----------------------------------------------
 // Claim Item
