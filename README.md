@@ -5,21 +5,21 @@ The project focuses on real-world application flow, user authentication, backend
 
 Features:
 
-User registration and login system
-Dashboard for posting found items with images and descriptions
-Public listing of found items for easy discovery
-Email-based communication between item owner and finder
-Secure data storage using a relational database
-Clean and user-friendly interface
+User registration and login system.
+Dashboard for posting found items with images and descriptions.
+Public listing of found items for easy discovery.
+Email-based communication between item owner and finder.
+Secure data storage using a relational database.
+Clean and user-friendly interface.
 
 Application Flow:
 
-User signs up or logs in to the application
-Authenticated users access the dashboard
-Users can post found items with images and details
-Other users browse the listings to identify their lost belongings
-Item owners can claim an item using the in-app email option
-Finder receives an email notification to coordinate item return
+User signs up or logs in to the application.
+Authenticated users access the dashboard.
+Users can post found items with images and details.
+Other users browse the listings to identify their lost belongings.
+Item owners can claim an item using the in-app email option.
+Finder receives an email notification to coordinate item return.
 
 Tech Stack:
 
@@ -45,9 +45,7 @@ Git & GitHub
 
 System Architecture:
 
-Frontend handles user interaction and form submissions
-Backend (Spring Boot) manages business logic, authentication, and API endpoints
-
-MySQL database stores user credentials, item details, and related data
-
-Email service enables communication between users
+Frontend handles user interaction and form submissions.
+Backend (Spring Boot) manages business logic, authentication, and API endpoints.
+MySQL database stores user credentials, item details, and related data.
+Email service enables communication between users.
