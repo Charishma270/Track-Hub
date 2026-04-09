@@ -1,51 +1,54 @@
-Overview:
+## Overview
+TrackHub is a full-stack web application that streamlines the process of reporting and recovering lost items through a centralized platform.
 
-TrackHub is a full-stack lost-and-found web application designed to help users report, discover, and recover lost items through a centralized platform. The system enables users to post details and images of found items, browse listings, and contact the finder securely to claim their belongings.
-The project focuses on real-world application flow, user authentication, backend integration, and database-driven functionality.
+Users can post found items with images, browse listings, and connect with item owners through a secure communication system.
 
-Features:
+---
 
-User registration and login system.
-Dashboard for posting found items with images and descriptions.
-Public listing of found items for easy discovery.
-Email-based communication between item owner and finder.
-Secure data storage using a relational database.
-Clean and user-friendly interface.
+## Key Features
+- User authentication (signup/login)
+- Post found items with images and descriptions
+- Public listing of items for easy discovery
+- Email-based communication between finder and owner
+- Structured data storage using MySQL
 
-Application Flow:
+---
 
-User signs up or logs in to the application.
-Authenticated users access the dashboard.
-Users can post found items with images and details.
-Other users browse the listings to identify their lost belongings.
-Item owners can claim an item using the in-app email option.
-Finder receives an email notification to coordinate item return.
+## Tech Stack
+**Frontend:** HTML, CSS, JavaScript  
+**Backend:** Java, Spring Boot  
+**Database:** MySQL  
 
-Tech Stack:
+---
 
-Frontend:
+## System Architecture
+- Frontend handles UI and user interactions  
+- Spring Boot backend manages APIs, authentication, and business logic  
+- MySQL database stores user and item data  
+- Email service enables communication between users  
 
-HTML
-CSS
-JavaScript
+---
 
-Backend:
+## Screenshots
 
-Java
-Spring Boot
+## Login Page
+<img width="1897" height="910" alt="Screenshot 2025-11-05 022835" src="https://github.com/user-attachments/assets/ceb1d0a6-1395-4e90-befa-266f612c568e" />
 
-Database:
+## Sign up Page
+<img width="1022" height="895" alt="Screenshot 2025-11-05 123047" src="https://github.com/user-attachments/assets/52c7045a-0014-443d-9f38-836abfbce7d5" />
 
-MySQL
+## Dashboard page
+<img width="1897" height="909" alt="Screenshot 2025-11-05 023456" src="https://github.com/user-attachments/assets/2e3f35eb-4b1e-4cf9-8616-59eafdbcfe64" />
 
-Tools:
+---
 
-VS Code
-Git & GitHub
+## How to Run
+1. Clone the repository  
+2. Configure MySQL database  
+3. Run Spring Boot application  
+4. Open frontend in browser  
 
-System Architecture:
+---
 
-Frontend handles user interaction and form submissions.
-Backend (Spring Boot) manages business logic, authentication, and API endpoints.
-MySQL database stores user credentials, item details, and related data.
-Email service enables communication between users.
+## Notes
+This project focuses on backend integration, user workflows, and database-driven application design.
