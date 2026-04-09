@@ -42,13 +42,5 @@ Users can post found items with images, browse listings, and connect with item o
 
 ---
 
-## How to Run
-1. Clone the repository  
-2. Configure MySQL database  
-3. Run Spring Boot application  
-4. Open frontend in browser  
-
----
-
 ## Notes
 This project focuses on backend integration, user workflows, and database-driven application design.
