@@ -13,7 +13,8 @@ public class Claim {
 
     // link to post
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(
+    name = "post_id", nullable = false, columnDefinition = "BIGINT UNSIGNED")
     private Post post;
 
     @Column(name = "claimer_name", nullable = false)
